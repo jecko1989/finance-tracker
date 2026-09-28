@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { DashboardPage } from "./pages/DashboardPage";
 import { LoginPage } from "./pages/LoginPage";
 
 export function App() {
@@ -11,7 +12,7 @@ export function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <div>Dashboard (in arrivo)</div>
+              <DashboardPage />
             </ProtectedRoute>
           }
         />
