@@ -29,7 +29,7 @@ describe("DashboardPage", () => {
   it("creates a new project through the modal", async () => {
     vi.spyOn(api, "createProject").mockResolvedValue({
       id: 2,
-      name: "Stignano",
+      name: "Progetto B",
       balance: "0",
       created_at: "2026-01-02T00:00:00",
     });
@@ -41,9 +41,9 @@ describe("DashboardPage", () => {
     );
 
     fireEvent.click(await screen.findByText("Nuovo progetto"));
-    fireEvent.change(screen.getByLabelText("Nome progetto"), { target: { value: "Stignano" } });
+    fireEvent.change(screen.getByLabelText("Nome progetto"), { target: { value: "Progetto B" } });
     fireEvent.click(screen.getByRole("button", { name: "Salva" }));
 
-    await waitFor(() => expect(api.createProject).toHaveBeenCalledWith("Stignano"));
+    await waitFor(() => expect(api.createProject).toHaveBeenCalledWith("Progetto B"));
   });
 });
