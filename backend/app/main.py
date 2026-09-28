@@ -1,10 +1,26 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import health
 from app.core.config import get_settings
+from app.db.init_db import bootstrap_admin, init_db
+from app.db.session import SessionLocal, engine
 
-app = FastAPI(title="Finance Tracker")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db(engine)
+    db = SessionLocal()
+    try:
+        bootstrap_admin(db)
+    finally:
+        db.close()
+    yield
+
+
+app = FastAPI(title="Finance Tracker", lifespan=lifespan)
 
 settings = get_settings()
 app.add_middleware(
