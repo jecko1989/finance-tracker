@@ -90,9 +90,31 @@ def test_update_and_delete_transaction(client, auth_headers):
 def test_suggest_categories_empty_when_no_transactions(client, auth_headers):
     project_id = _create_project(client, auth_headers)
     response = client.get(f"/projects/{project_id}/categories/suggest", headers=auth_headers)
-    # Route doesn't exist yet (added in Task 7) — this test is added here as a
-    # placeholder reminder and is skipped until Task 7 registers the route.
-    assert response.status_code in (200, 404)
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_suggest_categories_returns_distinct_used_categories(client, auth_headers):
+    project_id = _create_project(client, auth_headers)
+    client.post(
+        f"/projects/{project_id}/transactions",
+        json={"amount": "10.00", "date": "2026-01-01", "category": "cibo"},
+        headers=auth_headers,
+    )
+    client.post(
+        f"/projects/{project_id}/transactions",
+        json={"amount": "20.00", "date": "2026-01-02", "category": "cibo"},
+        headers=auth_headers,
+    )
+    client.post(
+        f"/projects/{project_id}/transactions",
+        json={"amount": "30.00", "date": "2026-01-03", "category": "affitto"},
+        headers=auth_headers,
+    )
+
+    response = client.get(f"/projects/{project_id}/categories/suggest", headers=auth_headers)
+    assert response.status_code == 200
+    assert sorted(response.json()) == ["affitto", "cibo"]
 
 
 def test_transactions_not_accessible_for_other_users_project(client, db_session, auth_headers):

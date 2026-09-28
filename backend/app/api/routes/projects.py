@@ -7,7 +7,7 @@ from app.api.deps import get_current_user, get_db
 from app.models.user import User
 from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
 from app.schemas.summary import ProjectSummary
-from app.services import project_service, summary_service
+from app.services import project_service, summary_service, transaction_service
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -72,3 +72,13 @@ def get_project_summary(
 ) -> ProjectSummary:
     project_service.get_project_or_404(db, current_user.id, project_id)
     return summary_service.get_project_summary(db, project_id)
+
+
+@router.get("/{project_id}/categories/suggest", response_model=list[str])
+def suggest_categories(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[str]:
+    project_service.get_project_or_404(db, current_user.id, project_id)
+    return transaction_service.suggest_categories(db, project_id)
