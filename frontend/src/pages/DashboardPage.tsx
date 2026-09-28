@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { ProjectCard } from "../components/ProjectCard";
 import { ProjectFormModal } from "../components/ProjectFormModal";
+import { RecentTransactionsList } from "../components/RecentTransactionsList";
 import { useProjects } from "../hooks/useProjects";
+import { useRecentTransactions } from "../hooks/useRecentTransactions";
 import type { Project } from "../types";
 
 export function DashboardPage() {
   const { projects, loading, error, createProject, renameProject, removeProject } = useProjects();
+  const { transactions } = useRecentTransactions();
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<Project | null>(null);
 
@@ -34,6 +37,9 @@ export function DashboardPage() {
           />
         ))}
       </div>
+
+      <h2 className="mb-2 mt-8 text-xl font-semibold">Ultime transazioni</h2>
+      <RecentTransactionsList transactions={transactions} />
 
       {creating && (
         <ProjectFormModal

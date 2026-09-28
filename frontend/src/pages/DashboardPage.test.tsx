@@ -12,6 +12,7 @@ const projects: Project[] = [
 describe("DashboardPage", () => {
   beforeEach(() => {
     vi.spyOn(api, "getProjects").mockResolvedValue(projects);
+    vi.spyOn(api, "getRecentTransactions").mockResolvedValue([]);
   });
 
   it("lists existing projects with their balance", async () => {
