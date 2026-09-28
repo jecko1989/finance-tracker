@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user, get_db
 from app.models.user import User
 from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
-from app.services import project_service
+from app.schemas.summary import ProjectSummary
+from app.services import project_service, summary_service
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -61,3 +62,13 @@ def delete_project(
     current_user: User = Depends(get_current_user),
 ) -> None:
     project_service.delete_project(db, current_user.id, project_id)
+
+
+@router.get("/{project_id}/summary", response_model=ProjectSummary)
+def get_project_summary(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectSummary:
+    project_service.get_project_or_404(db, current_user.id, project_id)
+    return summary_service.get_project_summary(db, project_id)
