@@ -73,12 +73,24 @@ describe("ProjectDetailPage", () => {
     );
   });
 
-  it("deletes a transaction", async () => {
+  it("deletes a transaction after the confirmation is accepted", async () => {
     vi.spyOn(api, "deleteTransaction").mockResolvedValue(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
     renderPage();
 
     fireEvent.click(await screen.findByText("Elimina"));
 
     await waitFor(() => expect(api.deleteTransaction).toHaveBeenCalledWith(1, 1));
+  });
+
+  it("does not delete a transaction if the confirmation is declined", async () => {
+    vi.spyOn(api, "deleteTransaction").mockResolvedValue(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderPage();
+
+    fireEvent.click(await screen.findByText("Elimina"));
+
+    expect(window.confirm).toHaveBeenCalled();
+    expect(api.deleteTransaction).not.toHaveBeenCalled();
   });
 });

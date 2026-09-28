@@ -21,7 +21,14 @@ export function ProjectCard({ project, onRename, onDelete }: Props) {
         <button onClick={onRename} className="text-slate-500 hover:underline">
           Rinomina
         </button>
-        <button onClick={onDelete} className="text-red-500 hover:underline">
+        <button
+          onClick={() => {
+            if (window.confirm(`Eliminare "${project.name}" e tutte le sue transazioni?`)) {
+              onDelete();
+            }
+          }}
+          className="text-red-500 hover:underline"
+        >
           Elimina
         </button>
       </div>

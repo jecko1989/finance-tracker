@@ -37,7 +37,14 @@ export function TransactionList({ transactions, onEdit, onDelete }: Props) {
                 <button onClick={() => onEdit(tx)} className="mr-2 text-slate-500 hover:underline">
                   Modifica
                 </button>
-                <button onClick={() => onDelete(tx)} className="text-red-500 hover:underline">
+                <button
+                  onClick={() => {
+                    if (window.confirm("Eliminare questa transazione?")) {
+                      onDelete(tx);
+                    }
+                  }}
+                  className="text-red-500 hover:underline"
+                >
                   Elimina
                 </button>
               </td>

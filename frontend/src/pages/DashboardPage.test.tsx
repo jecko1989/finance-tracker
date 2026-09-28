@@ -46,4 +46,35 @@ describe("DashboardPage", () => {
 
     await waitFor(() => expect(api.createProject).toHaveBeenCalledWith("Progetto B"));
   });
+
+  it("does not delete the project if the confirmation is declined", async () => {
+    vi.spyOn(api, "deleteProject").mockResolvedValue(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByText("Elimina"));
+
+    expect(window.confirm).toHaveBeenCalled();
+    expect(api.deleteProject).not.toHaveBeenCalled();
+  });
+
+  it("deletes the project after the confirmation is accepted", async () => {
+    vi.spyOn(api, "deleteProject").mockResolvedValue(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByText("Elimina"));
+
+    await waitFor(() => expect(api.deleteProject).toHaveBeenCalledWith(1));
+  });
 });

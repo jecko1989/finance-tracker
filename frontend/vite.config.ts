@@ -6,7 +6,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:8000",
+      // Backend routes have no /api prefix (nginx strips it in prod via
+      // `proxy_pass http://backend:8000/`) — the dev proxy needs the same
+      // rewrite, otherwise every request 404s locally.
+      "/api": {
+        target: "http://localhost:8000",
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
     },
   },
   test: {
