@@ -134,3 +134,85 @@ def test_transactions_not_accessible_for_other_users_project(client, db_session,
         headers=auth_headers,
     )
     assert response.status_code == 404
+
+
+def test_transaction_patch_and_delete_not_accessible_for_other_users_project(
+    client, db_session, auth_headers
+):
+    other_user = User(username="other2", password_hash=hash_password("pass"))
+    db_session.add(other_user)
+    db_session.commit()
+    other_project = Project(owner_id=other_user.id, name="Non tuo")
+    db_session.add(other_project)
+    db_session.commit()
+    from datetime import date as date_type
+    from decimal import Decimal
+
+    from app.models.transaction import Transaction
+
+    other_tx = Transaction(project_id=other_project.id, amount=Decimal("5.00"), date=date_type(2026, 1, 1))
+    db_session.add(other_tx)
+    db_session.commit()
+
+    response = client.patch(
+        f"/projects/{other_project.id}/transactions/{other_tx.id}",
+        json={"amount": "1.00"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 404
+
+    response = client.delete(
+        f"/projects/{other_project.id}/transactions/{other_tx.id}", headers=auth_headers
+    )
+    assert response.status_code == 404
+
+    response = client.get(f"/projects/{other_project.id}/summary", headers=auth_headers)
+    assert response.status_code == 404
+
+    response = client.get(f"/projects/{other_project.id}/categories/suggest", headers=auth_headers)
+    assert response.status_code == 404
+
+
+def test_amount_out_of_bounds_rejected(client, auth_headers):
+    project_id = _create_project(client, auth_headers)
+
+    response = client.post(
+        f"/projects/{project_id}/transactions",
+        json={"amount": "1e30", "date": "2026-01-01"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
+
+
+def test_patch_transaction_rejects_explicit_null_amount(client, auth_headers):
+    project_id = _create_project(client, auth_headers)
+    create = client.post(
+        f"/projects/{project_id}/transactions",
+        json={"amount": "10.00", "date": "2026-01-01"},
+        headers=auth_headers,
+    )
+    tx_id = create.json()["id"]
+
+    response = client.patch(
+        f"/projects/{project_id}/transactions/{tx_id}",
+        json={"amount": None},
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
+
+
+def test_patch_transaction_rejects_explicit_null_date(client, auth_headers):
+    project_id = _create_project(client, auth_headers)
+    create = client.post(
+        f"/projects/{project_id}/transactions",
+        json={"amount": "10.00", "date": "2026-01-01"},
+        headers=auth_headers,
+    )
+    tx_id = create.json()["id"]
+
+    response = client.patch(
+        f"/projects/{project_id}/transactions/{tx_id}",
+        json={"date": None},
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
