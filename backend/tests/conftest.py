@@ -9,13 +9,22 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 
 @pytest.fixture()
 def db_session():
     from app.db.base import Base
 
-    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    # StaticPool: FastAPI runs sync route handlers in a worker thread, not the
+    # test's thread. The default SQLite pool binds one connection per thread,
+    # so the handler would see a different (empty) :memory: database. StaticPool
+    # keeps a single shared connection across every thread for this engine.
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     testing_session_local = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     Base.metadata.create_all(engine)
     session = testing_session_local()
@@ -26,11 +35,17 @@ def db_session():
 
 
 @pytest.fixture()
-def client():
+def client(db_session):
+    from app.api.deps import get_db
     from app.main import app
 
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as test_client:
         yield test_client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture()
