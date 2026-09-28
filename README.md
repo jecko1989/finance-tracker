@@ -47,7 +47,8 @@ cp .env.example .env   # imposta JWT_SECRET e ADMIN_PASSWORD
 docker compose up --build
 ```
 
-Frontend su `:8080` (proxy verso il backend su `/api`).
+Frontend su `:8080` (proxy verso il backend su `/api`). Cambia `HOST_PORT`
+in `.env` se sull'host quella porta è già occupata da un altro servizio.
 
 ## Deploy
 
