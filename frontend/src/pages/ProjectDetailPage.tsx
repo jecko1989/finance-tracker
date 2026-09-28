@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { BalanceChart } from "../components/BalanceChart";
 import { FlowChart } from "../components/FlowChart";
 import { TransactionFormModal } from "../components/TransactionFormModal";
@@ -10,21 +10,37 @@ import { useTransactions } from "../hooks/useTransactions";
 import * as api from "../services/api";
 import type { Transaction } from "../types";
 
+const PAGE_SIZE = 20;
+
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const id = Number(projectId);
 
-  const { summary, loading: summaryLoading } = useProjectSummary(id);
   const [filters, setFilters] = useState<{ fromDate?: string; toDate?: string; category?: string }>({});
-  const { transactions, refresh } = useTransactions(id, filters);
-  const categorySuggestions = useCategorySuggestions(id);
+  const [offset, setOffset] = useState(0);
+
+  const { summary, loading: summaryLoading, refresh: refreshSummary } = useProjectSummary(id);
+  const { transactions, refresh: refreshTransactions } = useTransactions(id, {
+    ...filters,
+    limit: PAGE_SIZE,
+    offset,
+  });
+  const { suggestions: categorySuggestions, refresh: refreshCategories } = useCategorySuggestions(id);
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
 
+  async function refreshAll() {
+    await Promise.all([refreshTransactions(), refreshSummary(), refreshCategories()]);
+  }
+
   async function handleDelete(tx: Transaction) {
     await api.deleteTransaction(id, tx.id);
-    await refresh();
+    await refreshAll();
+  }
+
+  if (Number.isNaN(id)) {
+    return <p className="p-6 text-red-600">Progetto non valido.</p>;
   }
 
   if (summaryLoading || !summary) {
@@ -35,7 +51,11 @@ export function ProjectDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl p-6">
-      <div className="flex items-center justify-between">
+      <Link to="/" className="text-sm text-slate-500 hover:underline">
+        ← Progetti
+      </Link>
+
+      <div className="mt-2 flex items-center justify-between">
         <p className={`text-3xl font-bold ${balance >= 0 ? "text-emerald-600" : "text-red-600"}`}>
           {balance.toFixed(2)} €
         </p>
@@ -63,31 +83,57 @@ export function ProjectDetailPage() {
         <input
           type="date"
           value={filters.fromDate ?? ""}
-          onChange={(e) => setFilters((f) => ({ ...f, fromDate: e.target.value || undefined }))}
+          onChange={(e) => {
+            setOffset(0);
+            setFilters((f) => ({ ...f, fromDate: e.target.value || undefined }));
+          }}
           className="rounded border px-2 py-1"
         />
         <input
           type="date"
           value={filters.toDate ?? ""}
-          onChange={(e) => setFilters((f) => ({ ...f, toDate: e.target.value || undefined }))}
+          onChange={(e) => {
+            setOffset(0);
+            setFilters((f) => ({ ...f, toDate: e.target.value || undefined }));
+          }}
           className="rounded border px-2 py-1"
         />
         <input
           placeholder="Categoria"
           value={filters.category ?? ""}
-          onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value || undefined }))}
+          onChange={(e) => {
+            setOffset(0);
+            setFilters((f) => ({ ...f, category: e.target.value || undefined }));
+          }}
           className="rounded border px-2 py-1"
         />
       </div>
 
       <TransactionList transactions={transactions} onEdit={setEditing} onDelete={handleDelete} />
 
+      <div className="mt-3 flex items-center justify-end gap-2 text-sm">
+        <button
+          onClick={() => setOffset((o) => Math.max(0, o - PAGE_SIZE))}
+          disabled={offset === 0}
+          className="rounded border px-3 py-1 disabled:opacity-40"
+        >
+          Precedenti
+        </button>
+        <button
+          onClick={() => setOffset((o) => o + PAGE_SIZE)}
+          disabled={transactions.length < PAGE_SIZE}
+          className="rounded border px-3 py-1 disabled:opacity-40"
+        >
+          Successive
+        </button>
+      </div>
+
       {creating && (
         <TransactionFormModal
           categorySuggestions={categorySuggestions}
           onSubmit={async (data) => {
             await api.createTransaction(id, data);
-            await refresh();
+            await refreshAll();
           }}
           onClose={() => setCreating(false)}
         />
@@ -98,7 +144,7 @@ export function ProjectDetailPage() {
           initial={editing}
           onSubmit={async (data) => {
             await api.updateTransaction(id, editing.id, data);
-            await refresh();
+            await refreshAll();
           }}
           onClose={() => setEditing(null)}
         />

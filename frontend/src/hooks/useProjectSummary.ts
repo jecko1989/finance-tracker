@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as api from "../services/api";
 import type { ProjectSummary } from "../types";
 
@@ -6,13 +6,17 @@ export function useProjectSummary(projectId: number) {
   const [summary, setSummary] = useState<ProjectSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     setLoading(true);
-    api
+    return api
       .getProjectSummary(projectId)
       .then(setSummary)
       .finally(() => setLoading(false));
   }, [projectId]);
 
-  return { summary, loading };
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { summary, loading, refresh };
 }

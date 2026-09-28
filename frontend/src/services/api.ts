@@ -39,6 +39,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`/api${path}`, { ...options, headers });
 
   if (!response.ok) {
+    if (response.status === 401 && path !== "/auth/login") {
+      // Expired or invalid session on an already-authenticated call: drop
+      // the stale token and send the user back to login, instead of every
+      // page staring at "Caricamento..." or a stale error forever. Skips
+      // the login endpoint itself so a wrong-password attempt just shows
+      // its error message without an extra reload.
+      clearToken();
+      window.location.assign("/login");
+    }
     const body = await response.json().catch(() => ({ detail: response.statusText }));
     throw new ApiError(response.status, body.detail ?? "Errore sconosciuto");
   }

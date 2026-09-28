@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ProjectCard } from "../components/ProjectCard";
 import { ProjectFormModal } from "../components/ProjectFormModal";
 import { RecentTransactionsList } from "../components/RecentTransactionsList";
+import { useAuth } from "../hooks/useAuth";
 import { useProjects } from "../hooks/useProjects";
 import { useRecentTransactions } from "../hooks/useRecentTransactions";
 import type { Project } from "../types";
@@ -9,19 +11,31 @@ import type { Project } from "../types";
 export function DashboardPage() {
   const { projects, loading, error, createProject, renameProject, removeProject } = useProjects();
   const { transactions } = useRecentTransactions();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<Project | null>(null);
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
 
   return (
     <div className="mx-auto max-w-4xl p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Progetti</h1>
-        <button
-          onClick={() => setCreating(true)}
-          className="rounded bg-slate-800 px-3 py-2 text-sm text-white"
-        >
-          Nuovo progetto
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCreating(true)}
+            className="rounded bg-slate-800 px-3 py-2 text-sm text-white"
+          >
+            Nuovo progetto
+          </button>
+          <button onClick={handleLogout} className="rounded border px-3 py-2 text-sm text-slate-600">
+            Esci
+          </button>
+        </div>
       </div>
 
       {loading && <p>Caricamento...</p>}

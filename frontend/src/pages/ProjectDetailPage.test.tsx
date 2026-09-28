@@ -93,4 +93,23 @@ describe("ProjectDetailPage", () => {
     expect(window.confirm).toHaveBeenCalled();
     expect(api.deleteTransaction).not.toHaveBeenCalled();
   });
+
+  it("refreshes the balance/charts and category suggestions after adding a transaction", async () => {
+    vi.spyOn(api, "createTransaction").mockResolvedValue(transactions[0]);
+    renderPage();
+    await screen.findByText("120.50 €");
+
+    const summaryCallsBefore = vi.mocked(api.getProjectSummary).mock.calls.length;
+    const suggestCallsBefore = vi.mocked(api.suggestCategories).mock.calls.length;
+
+    fireEvent.click(await screen.findByText("Nuova transazione"));
+    fireEvent.change(screen.getByLabelText("Importo"), { target: { value: "10" } });
+    fireEvent.change(screen.getByLabelText("Data"), { target: { value: "2026-02-01" } });
+    fireEvent.click(screen.getByRole("button", { name: "Salva" }));
+
+    await waitFor(() =>
+      expect(vi.mocked(api.getProjectSummary).mock.calls.length).toBeGreaterThan(summaryCallsBefore),
+    );
+    expect(vi.mocked(api.suggestCategories).mock.calls.length).toBeGreaterThan(suggestCallsBefore);
+  });
 });
