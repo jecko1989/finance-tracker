@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import { App } from "./App";
 
 describe("App", () => {
-  it("renders the placeholder home route", () => {
+  it("redirects an unauthenticated visitor to the login page", () => {
+    localStorage.clear();
     render(<App />);
-    expect(screen.getByText("Finance Tracker")).toBeInTheDocument();
+    expect(screen.getByLabelText("Utente")).toBeInTheDocument();
   });
 });
