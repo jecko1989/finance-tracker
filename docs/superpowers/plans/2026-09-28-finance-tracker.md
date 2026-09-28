@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Repo is public: no personal identifiers (username, real Pi hostname beyond the placeholder, real project names) in code, README, commit messages, class/variable names, or comments. Real project names ("Stignano", etc.) only ever exist as runtime data the user types in.
+- Repo is public: no personal identifiers (username, real Pi hostname beyond the placeholder, real project names the user has mentioned) in code, README, commit messages, class/variable names, or comments. Real project names only ever exist as runtime data the user types in — test fixtures use a generic placeholder like "Progetto B", never a real one.
 - UI strings, error messages, and code comments are in Italian (matches sibling project convention).
 - `Project.owner_id` exists from the start (multi-user-ready schema) but no registration/permission UI is built now — single bootstrap admin only, from `ADMIN_USERNAME`/`ADMIN_PASSWORD` env vars.
 - No new dependency beyond what's listed in Tech Stack; no external state manager, no ORM beyond SQLAlchemy, no ui component library.
@@ -2864,7 +2864,7 @@ describe("DashboardPage", () => {
   it("creates a new project through the modal", async () => {
     vi.spyOn(api, "createProject").mockResolvedValue({
       id: 2,
-      name: "Stignano",
+      name: "Progetto B",
       balance: "0",
       created_at: "2026-01-02T00:00:00",
     });
@@ -2876,10 +2876,10 @@ describe("DashboardPage", () => {
     );
 
     fireEvent.click(await screen.findByText("Nuovo progetto"));
-    fireEvent.change(screen.getByLabelText("Nome progetto"), { target: { value: "Stignano" } });
+    fireEvent.change(screen.getByLabelText("Nome progetto"), { target: { value: "Progetto B" } });
     fireEvent.click(screen.getByRole("button", { name: "Salva" }));
 
-    await waitFor(() => expect(api.createProject).toHaveBeenCalledWith("Stignano"));
+    await waitFor(() => expect(api.createProject).toHaveBeenCalledWith("Progetto B"));
   });
 });
 ```
@@ -3032,7 +3032,7 @@ describe("RecentTransactionsList", () => {
       {
         id: 1,
         project_id: 5,
-        project_name: "Stignano",
+        project_name: "Progetto B",
         amount: "-42.50",
         date: "2026-01-15",
         note: "Bolletta luce",
@@ -3046,7 +3046,7 @@ describe("RecentTransactionsList", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Stignano")).toBeInTheDocument();
+    expect(screen.getByText("Progetto B")).toBeInTheDocument();
     expect(screen.getByText("Bolletta luce")).toBeInTheDocument();
     expect(screen.getByText("-42.50 €")).toBeInTheDocument();
   });
