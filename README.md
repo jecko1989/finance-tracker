@@ -66,3 +66,11 @@ Secret richiesti nel repo GitHub: `TS_OAUTH_CLIENT_ID`,
 `TS_OAUTH_CLIENT_SECRET` (scope minimi, tag `tag:ci-deploy` con ACL
 ristretta alla porta 22 dell'host target), `DEPLOY_SSH_USER`,
 `DEPLOY_SSH_PRIVATE_KEY`.
+
+**Prima del primo deploy reale**, sul Pi va creato manualmente
+`/opt/finance-tracker/.env` (stesso contenuto di `.env.example`, con
+`JWT_SECRET`/`ADMIN_PASSWORD` reali) — `deploy.sh` sincronizza il resto
+del repo ma esclude deliberatamente `.env` per non rischiare di
+sovrascrivere quello del Pi con un `.env` di sviluppo locale. Senza
+questo file `docker compose up` sul Pi fallisce (le variabili sono
+obbligatorie in `docker-compose.yml`).
