@@ -25,7 +25,8 @@ def test_change_password_requires_old_password(client, auth_headers):
         json={"old_password": "wrong", "new_password": "newpass"},
         headers=auth_headers,
     )
-    assert response.status_code == 401
+    # 400 (non 401): il client tratta ogni 401 come sessione scaduta.
+    assert response.status_code == 400
 
 
 def test_change_password_success(client, auth_headers):
@@ -38,6 +39,15 @@ def test_change_password_success(client, auth_headers):
 
     login_response = client.post("/auth/login", json={"username": "testuser", "password": "newpass"})
     assert login_response.status_code == 200
+
+
+def test_change_password_rejects_short_new_password(client, auth_headers):
+    response = client.post(
+        "/auth/change-password",
+        json={"old_password": "testpass", "new_password": "abc"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 422
 
 
 def test_protected_endpoint_requires_token(client):

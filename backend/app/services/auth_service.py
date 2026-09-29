@@ -21,6 +21,6 @@ def login(db: Session, username: str, password: str) -> str:
 
 def change_password(db: Session, user: User, old_password: str, new_password: str) -> None:
     if not verify_password(old_password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password attuale non corretta")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password attuale non corretta")
     user.password_hash = hash_password(new_password)
     db.commit()
