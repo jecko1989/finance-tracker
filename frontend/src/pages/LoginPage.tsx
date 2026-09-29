@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { useAuth } from "../hooks/useAuth";
+import { btnPrimary, cardClass, errorBox, inputClass, labelClass, mutedText } from "../styles";
 
 export function LoginPage() {
   const [username, setUsername] = useState("");
@@ -21,30 +23,34 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100">
-      <form onSubmit={handleSubmit} className="w-80 rounded-lg bg-white p-6 shadow">
-        <h1 className="mb-4 text-xl font-semibold">Accedi</h1>
-        {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-        <label className="mb-2 block text-sm">
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 p-4 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle compact />
+      </div>
+      <form onSubmit={handleSubmit} className={`w-full max-w-sm p-6 ${cardClass}`}>
+        <h1 className="mb-1 text-xl font-bold">💰 Finance Tracker</h1>
+        <p className={`mb-4 text-sm ${mutedText}`}>Accedi per continuare</p>
+        {error && <p className={`mb-3 ${errorBox}`}>{error}</p>}
+        <label className={`mb-3 ${labelClass}`}>
           Utente
           <input
-            className="mt-1 w-full rounded border px-2 py-1"
+            className={inputClass}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </label>
-        <label className="mb-4 block text-sm">
+        <label className={`mb-4 ${labelClass}`}>
           Password
           <input
             type="password"
-            className="mt-1 w-full rounded border px-2 py-1"
+            className={inputClass}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </label>
-        <button type="submit" className="w-full rounded bg-slate-800 py-2 text-white">
+        <button type="submit" className={`w-full ${btnPrimary}`}>
           Accedi
         </button>
       </form>

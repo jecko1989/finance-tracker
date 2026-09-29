@@ -1,55 +1,31 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { ProjectCard } from "../components/ProjectCard";
 import { ProjectFormModal } from "../components/ProjectFormModal";
 import { RecentTransactionsList } from "../components/RecentTransactionsList";
-import { useAuth } from "../hooks/useAuth";
 import { useProjects } from "../hooks/useProjects";
 import { useRecentTransactions } from "../hooks/useRecentTransactions";
+import { btnPrimary, errorBox } from "../styles";
 import type { Project } from "../types";
 
 export function DashboardPage() {
   const { projects, loading, error, createProject, renameProject, removeProject } = useProjects();
   const { transactions } = useRecentTransactions();
-  const { logout } = useAuth();
-  const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<Project | null>(null);
-  const [changingPassword, setChangingPassword] = useState(false);
-
-  function handleLogout() {
-    logout();
-    navigate("/login");
-  }
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
+    <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Progetti</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setCreating(true)}
-            className="rounded bg-slate-800 px-3 py-2 text-sm text-white"
-          >
-            Nuovo progetto
-          </button>
-          <button
-            onClick={() => setChangingPassword(true)}
-            className="rounded border px-3 py-2 text-sm text-slate-600"
-          >
-            Cambia password
-          </button>
-          <button onClick={handleLogout} className="rounded border px-3 py-2 text-sm text-slate-600">
-            Esci
-          </button>
-        </div>
+        <button onClick={() => setCreating(true)} className={btnPrimary}>
+          Nuovo progetto
+        </button>
       </div>
 
-      {loading && <p>Caricamento...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {loading && <p className="text-sm text-gray-500 dark:text-gray-400">Caricamento...</p>}
+      {error && <p className={`mb-3 ${errorBox}`}>{error}</p>}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
           <ProjectCard
             key={project.id}
@@ -78,7 +54,6 @@ export function DashboardPage() {
           onClose={() => setRenaming(null)}
         />
       )}
-      {changingPassword && <ChangePasswordModal onClose={() => setChangingPassword(false)} />}
     </div>
   );
 }

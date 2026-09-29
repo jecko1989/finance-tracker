@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { btnPrimary, btnSecondary, inputClass, labelClass, modalOverlayClass, modalPanelClass } from "../styles";
 
 interface Props {
   title: string;
@@ -23,26 +24,26 @@ export function ProjectFormModal({ title, initialName = "", onSubmit, onClose }:
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-      <form onSubmit={handleSubmit} className="w-80 rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold">{title}</h2>
-        <label className="mb-4 block text-sm">
+    <div className={modalOverlayClass}>
+      <form onSubmit={handleSubmit} className={`max-w-sm ${modalPanelClass}`}>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+        <label className={`mb-4 ${labelClass}`}>
           Nome progetto
           <input
-            className="mt-1 w-full rounded border px-2 py-1"
+            className={inputClass}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
         </label>
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded px-3 py-1 text-slate-600">
+          <button type="button" onClick={onClose} className={btnSecondary}>
             Annulla
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="rounded bg-slate-800 px-3 py-1 text-white disabled:opacity-50"
+            className={btnPrimary}
           >
             Salva
           </button>

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import type { TransactionInput } from "../services/api";
+import { btnPrimary, btnSecondary, inputClass, labelClass, modalOverlayClass, modalPanelClass } from "../styles";
 import type { Transaction } from "../types";
 
 interface Props {
@@ -37,9 +38,9 @@ export function TransactionFormModal({ categorySuggestions, initial, onSubmit, o
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-      <form onSubmit={handleSubmit} className="w-96 rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold">
+    <div className={modalOverlayClass}>
+      <form onSubmit={handleSubmit} className={`max-w-md ${modalPanelClass}`}>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           {initial ? "Modifica transazione" : "Nuova transazione"}
         </h2>
 
@@ -47,57 +48,61 @@ export function TransactionFormModal({ categorySuggestions, initial, onSubmit, o
           <button
             type="button"
             onClick={() => setIsIncome(true)}
-            className={`flex-1 rounded border py-1 ${isIncome ? "bg-emerald-600 text-white" : ""}`}
+            className={`flex-1 rounded-md border py-1.5 transition ${
+              isIncome ? "border-emerald-600 bg-emerald-600 text-white" : "border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+            }`}
           >
             Entrata
           </button>
           <button
             type="button"
             onClick={() => setIsIncome(false)}
-            className={`flex-1 rounded border py-1 ${!isIncome ? "bg-red-600 text-white" : ""}`}
+            className={`flex-1 rounded-md border py-1.5 transition ${
+              !isIncome ? "border-red-600 bg-red-600 text-white" : "border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+            }`}
           >
             Uscita
           </button>
         </div>
 
-        <label className="mb-3 block text-sm">
+        <label className={`mb-3 ${labelClass}`}>
           Importo
           <input
             type="number"
             step="0.01"
             min="0"
-            className="mt-1 w-full rounded border px-2 py-1"
+            className={inputClass}
             value={magnitude}
             onChange={(e) => setMagnitude(e.target.value)}
             required
           />
         </label>
 
-        <label className="mb-3 block text-sm">
+        <label className={`mb-3 ${labelClass}`}>
           Data
           <input
             type="date"
-            className="mt-1 w-full rounded border px-2 py-1"
+            className={inputClass}
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
           />
         </label>
 
-        <label className="mb-3 block text-sm">
+        <label className={`mb-3 ${labelClass}`}>
           Nota
           <input
-            className="mt-1 w-full rounded border px-2 py-1"
+            className={inputClass}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
         </label>
 
-        <label className="mb-4 block text-sm">
+        <label className={`mb-4 ${labelClass}`}>
           Categoria
           <input
             list="category-suggestions"
-            className="mt-1 w-full rounded border px-2 py-1"
+            className={inputClass}
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
@@ -109,13 +114,13 @@ export function TransactionFormModal({ categorySuggestions, initial, onSubmit, o
         </label>
 
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded px-3 py-1 text-slate-600">
+          <button type="button" onClick={onClose} className={btnSecondary}>
             Annulla
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="rounded bg-slate-800 px-3 py-1 text-white disabled:opacity-50"
+            className={btnPrimary}
           >
             Salva
           </button>
