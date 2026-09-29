@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { changePassword } from "../services/api";
+import { btnPrimary, btnSecondary, errorBox, inputClass, labelClass, modalOverlayClass, modalPanelClass } from "../styles";
 
 interface Props {
   onClose: () => void;
@@ -40,17 +41,17 @@ export function ChangePasswordModal({ onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-      <form onSubmit={handleSubmit} className="w-80 rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold">Cambia password</h2>
+    <div className={modalOverlayClass}>
+      <form onSubmit={handleSubmit} className={`max-w-sm ${modalPanelClass}`}>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Cambia password</h2>
         {success ? (
           <>
-            <p className="mb-4 text-sm text-green-700">Password cambiata con successo</p>
+            <p className="mb-4 text-sm text-emerald-700 dark:text-emerald-400">Password cambiata con successo</p>
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded bg-slate-800 px-3 py-1 text-white"
+                className={btnPrimary}
               >
                 Chiudi
               </button>
@@ -58,48 +59,48 @@ export function ChangePasswordModal({ onClose }: Props) {
           </>
         ) : (
           <>
-            <label className="mb-3 block text-sm">
+            <label className={`mb-3 ${labelClass}`}>
               Password attuale
               <input
                 type="password"
                 autoComplete="current-password"
-                className="mt-1 w-full rounded border px-2 py-1"
+                className={inputClass}
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
                 required
               />
             </label>
-            <label className="mb-3 block text-sm">
+            <label className={`mb-3 ${labelClass}`}>
               Nuova password
               <input
                 type="password"
                 autoComplete="new-password"
-                className="mt-1 w-full rounded border px-2 py-1"
+                className={inputClass}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
               />
             </label>
-            <label className="mb-4 block text-sm">
+            <label className={`mb-4 ${labelClass}`}>
               Conferma nuova password
               <input
                 type="password"
                 autoComplete="new-password"
-                className="mt-1 w-full rounded border px-2 py-1"
+                className={inputClass}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </label>
-            {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+            {error && <p className={`mb-3 ${errorBox}`}>{error}</p>}
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={onClose} className="rounded px-3 py-1 text-slate-600">
+              <button type="button" onClick={onClose} className={btnSecondary}>
                 Annulla
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="rounded bg-slate-800 px-3 py-1 text-white disabled:opacity-50"
+                className={btnPrimary}
               >
                 Salva
               </button>

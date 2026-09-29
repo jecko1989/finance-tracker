@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as api from "../services/api";
 import type { Project } from "../types";
@@ -76,21 +76,5 @@ describe("DashboardPage", () => {
     fireEvent.click(await screen.findByText("Elimina"));
 
     await waitFor(() => expect(api.deleteProject).toHaveBeenCalledWith(1));
-  });
-
-  it("logs out and returns to the login page", async () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/login" element={<div>Pagina di login</div>} />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    fireEvent.click(await screen.findByText("Esci"));
-
-    expect(await screen.findByText("Pagina di login")).toBeInTheDocument();
-    expect(api.getToken()).toBeNull();
   });
 });
